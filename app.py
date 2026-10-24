@@ -6,6 +6,23 @@ import seaborn as sns
 
 st.set_page_config(page_title="Expenses Dashboard", page_icon="💰", layout="wide")
 
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+html, body, [class*="css"], h1, h2, h3, h4, p {
+    font-family: 'Amiri', serif;
+}
+
+[data-testid="stMetric"] {
+    background-color: #F5E6D8;
+    border-radius: 12px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("💰 لوحة متابعة مصاريفي الشهرية")
 st.write("متابعة المصاريف اليومية والإحصاء الوصفي لها.")
 
@@ -78,9 +95,9 @@ if not filtered_df.empty:
 
     st.markdown("#### 📉 التوزيع والـ Outliers")
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-    sns.histplot(data=filtered_df, x="Amount", kde=True, bins=10, ax=axes[0])
+    sns.histplot(data=filtered_df, x="Amount", kde=True, bins=10, ax=axes[0], color="#C0714F")
     axes[0].set_title("Amount Distribution")
-    sns.boxplot(data=filtered_df, x="Category", y="Amount", ax=axes[1])
+    sns.boxplot(data=filtered_df, x="Category", y="Amount", ax=axes[1], color="#E8C4A8")
     axes[1].set_title("Boxplot by Category")
     plt.tight_layout()
     st.pyplot(fig)
