@@ -50,33 +50,44 @@ col2.metric("إجمالي المصروفات", f"{total:,.0f} جنيه")
 col3.metric("متوسط المصروف", f"{avg:.1f} جنيه")
 col4.metric("أكبر فئة صرفاً", top_cat)
 
-# Sidebar
-st.sidebar.header("⚙️ خيارات التصفية")
+# الإحصاء الوصفي
+st.markdown("---")
+st.subheader("📈 الإحصاء الوصفي والتوزيعات")
 
-df["Month"] = df["Date"].dt.strftime("%Y-%m")
+if not filtered_df.empty:
+    amount = filtered_df["Amount"]
+    q1 = amount.quantile(0.25)
+    q3 = amount.quantile(0.75)
 
-months = ["All"] + sorted(df["Month"].unique())
-selected_month = st.sidebar.selectbox("اختاري الشهر", months)
+    col_a, col_b = st.columns(2)
 
-categories = ["All"] + list(df["Category"].unique())
-selected_cat = st.sidebar.selectbox("اختاري الفئة", categories)
+    with col_a:
+        st.markdown("#### 🔹 النزعة المركزية")
+        st.write(f"- المتوسط (Mean): {amount.mean():.2f}")
+        st.write(f"- الوسيط (Median): {amount.median():.2f}")
+        st.write(f"- المنوال (Mode): {amount.mode().iloc[0]}")
 
-filtered_df = df.copy()
-if selected_month != "All":
-    filtered_df = filtered_df[filtered_df["Month"] == selected_month]
-if selected_cat != "All":
-    filtered_df = filtered_df[filtered_df["Category"] == selected_cat]
+        st.markdown("#### 🔹 التشتت")
+        st.write(f"- الانحراف المعياري (Std): {amount.std():.2f}")
+        st.write(f"- المدى الربيعي (IQR): {q3 - q1:.2f}")
 
-# KPIs
-st.markdown("### 📊 الملخص")
-col1, col2, col3, col4 = st.columns(4)
+    with col_b:
+        st.markdown("#### 🔹 مقارنة الفئات")
+        summary = filtered_df.groupby("Category")["Amount"].agg(["count", "mean", "median", "std"])
+        st.dataframe(summary.round(2))
 
-count = len(filtered_df)
-total = filtered_df["Amount"].sum()
-avg = filtered_df["Amount"].mean() if count > 0 else 0
-top_cat = filtered_df.groupby("Category")["Amount"].sum().idxmax() if count > 0 else "-"
+    st.markdown("#### 📉 التوزيع والـ Outliers")
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    sns.histplot(data=filtered_df, x="Amount", kde=True, bins=10, ax=axes[0])
+    axes[0].set_title("Amount Distribution")
+    sns.boxplot(data=filtered_df, x="Category", y="Amount", ax=axes[1])
+    axes[1].set_title("Boxplot by Category")
+    plt.tight_layout()
+    st.pyplot(fig)
+else:
+    st.warning("لا توجد بيانات للفلتر الحالي.")
 
-col1.metric("عدد العمليات", count)
-col2.metric("إجمالي المصروفات", f"{total:,.0f} جنيه")
-col3.metric("متوسط المصروف", f"{avg:.1f} جنيه")
-col4.metric("أكبر فئة صرفاً", top_cat)
+st.markdown("---")
+if st.checkbox("📋 عرض السجل التفصيلي"):
+    st.dataframe(filtered_df)
+
