@@ -122,6 +122,37 @@ if not filtered_df.empty:
     cat_total = filtered_df.groupby("Category")["Amount"].sum()
     st.bar_chart(cat_total)
 
+        # 4) نسبة كل فئة من الإجمالي (Pie)
+    st.markdown("#### 🥧 نسبة كل فئة من الإجمالي")
+    pie_colors = ["#C0714F", "#E8C4A8", "#D9A066", "#8C5A3C", "#F2D4B7"]
+    fig2, ax2 = plt.subplots(figsize=(5, 5))
+    ax2.pie(
+        cat_total,
+        labels=cat_total.index,
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=pie_colors[:len(cat_total)],
+    )
+    st.pyplot(fig2)
+
+    # 5) إجمالي كل شهر
+    st.markdown("#### 📆 إجمالي كل شهر")
+    month_total = filtered_df.groupby("Month")["Amount"].sum()
+    st.bar_chart(month_total)
+
+    # 6) المصاريف عبر الزمن (الشاذة بالأحمر)
+    st.markdown("#### 🔴 المصاريف عبر الزمن (الشاذة بالأحمر)")
+    normal = filtered_df.drop(outliers.index)
+    fig3, ax3 = plt.subplots(figsize=(12, 4))
+    ax3.scatter(normal["Date"], normal["Amount"], color="#C0714F", alpha=0.7, label="Normal")
+    ax3.scatter(outliers["Date"], outliers["Amount"], color="red", label="Outlier")
+    ax3.set_xlabel("Date")
+    ax3.set_ylabel("Amount")
+    ax3.legend()
+    fig3.autofmt_xdate()
+    plt.tight_layout()
+    st.pyplot(fig3)
+
 else:
     st.warning("لا توجد بيانات للفلتر الحالي.")
 
