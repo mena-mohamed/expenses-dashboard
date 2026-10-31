@@ -101,10 +101,31 @@ if not filtered_df.empty:
     axes[1].set_title("Boxplot by Category")
     plt.tight_layout()
     st.pyplot(fig)
+
+    # 1) المصاريف الشاذة (Outliers) بقاعدة IQR
+    st.markdown("#### 🚨 المصاريف الشاذة (Outliers)")
+    iqr = q3 - q1
+    lower = q1 - 1.5 * iqr
+    upper = q3 + 1.5 * iqr
+    outliers = filtered_df[(filtered_df["Amount"] < lower) | (filtered_df["Amount"] > upper)]
+    st.write(f"الحدود الطبيعية: من {lower:.0f} إلى {upper:.0f} جنيه، وعدد المصاريف الشاذة: {len(outliers)}")
+    if not outliers.empty:
+        st.dataframe(outliers[["Date", "Category", "Amount"]])
+
+    # 2) المصروف اليومي
+    st.markdown("#### 📅 المصروف اليومي")
+    daily = filtered_df.groupby("Date")["Amount"].sum()
+    st.line_chart(daily)
+
+    # 3) إجمالي كل فئة
+    st.markdown("#### 🗂️ إجمالي كل فئة")
+    cat_total = filtered_df.groupby("Category")["Amount"].sum()
+    st.bar_chart(cat_total)
+
 else:
     st.warning("لا توجد بيانات للفلتر الحالي.")
 
 st.markdown("---")
 if st.checkbox("📋 عرض السجل التفصيلي"):
-    st.dataframe(filtered_df)
-
+    st.dataframe(filtered_df))
+  
