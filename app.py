@@ -158,5 +158,5 @@ else:
 
 st.markdown("---")
 if st.checkbox("📋 عرض السجل التفصيلي"):
-    st.dataframe(filtered_df))
+    st.dataframe(filtered_df)
 
